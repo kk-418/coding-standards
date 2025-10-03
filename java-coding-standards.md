@@ -697,12 +697,147 @@ tasks.withType(Test).configureEach {
 }
 ```
 
-### 6.3 测试覆盖率要求
+### 6.3 Mock注解使用规范
+
+#### 6.3.1 禁止使用过时的@MockBean
+
+**重要**: `org.springframework.boot.test.mock.mockito.MockBean` 已被标记为过时且待删除,必须使用新的替代注解。
+
+#### 6.3.2 正确的Mock注解
+
+| 场景 | 过时注解(禁止使用) | 正确注解(必须使用) |
+|------|------------------|------------------|
+| Mock Spring Bean | `@MockBean` | `@MockitoBean` |
+| Spy Spring Bean | `@SpyBean` | `@MockitoSpyBean` |
+| 纯Mockito Mock | - | `@Mock` |
+| 纯Mockito Spy | - | `@Spy` |
+
+#### 6.3.3 错误示例
+
+```java
+// ❌ 错误: 使用过时的@MockBean
+import org.springframework.boot.test.mock.mockito.MockBean;
+
+@SpringBootTest
+class PaymentServiceTest {
+
+    @MockBean  // 过时注解,即将移除
+    private PaymentRepository paymentRepository;
+
+    @Test
+    void testCreate() {
+        // ...
+    }
+}
+```
+
+#### 6.3.4 正确示例
+
+```java
+// ✅ 正确: 使用新的@MockitoBean
+import org.springframework.boot.test.mock.mockito.MockitoBean;
+import org.mockito.Mock;
+
+@SpringBootTest
+class PaymentServiceTest {
+
+    @MockitoBean  // 新注解,替代@MockBean
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private PaymentService paymentService;
+
+    @Test
+    void should_createPayment_when_validRequest() {
+        // Given
+        Payment payment = Payment.builder()
+                .id(1L)
+                .amount(new BigDecimal("100.00"))
+                .build();
+        when(paymentRepository.save(any())).thenReturn(payment);
+
+        // When
+        PaymentResult result = paymentService.create(request);
+
+        // Then
+        assertNotNull(result);
+        verify(paymentRepository).save(any());
+    }
+}
+
+// ✅ 正确: 纯Mockito测试(不需要Spring上下文)
+class PaymentCalculatorTest {
+
+    @Mock  // 纯Mockito注解
+    private RateService rateService;
+
+    @InjectMocks
+    private PaymentCalculator calculator;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+    }
+
+    @Test
+    void should_calculateFee_when_validAmount() {
+        // Given
+        when(rateService.getRate()).thenReturn(new BigDecimal("0.05"));
+
+        // When
+        BigDecimal fee = calculator.calculateFee(new BigDecimal("100"));
+
+        // Then
+        assertEquals(new BigDecimal("5.00"), fee);
+    }
+}
+```
+
+#### 6.3.5 注解选择指南
+
+**使用 `@MockitoBean` / `@MockitoSpyBean` 的场景**:
+- 需要Spring上下文(使用 `@SpringBootTest` 或 `@WebMvcTest` 等)
+- Mock Spring容器中的Bean
+- 测试依赖Spring特性(如事务、AOP、依赖注入等)
+
+**使用 `@Mock` / `@Spy` 的场景**:
+- 纯单元测试,不需要Spring上下文
+- 测试POJO类或工具类
+- 追求更快的测试执行速度
+
+#### 6.3.6 迁移指南
+
+如果项目中存在旧的 `@MockBean` 注解,按以下步骤迁移:
+
+1. **查找所有使用**:
+```bash
+# 查找项目中所有使用@MockBean的文件
+grep -r "@MockBean" src/test
+```
+
+2. **批量替换**:
+```bash
+# 替换import语句
+find src/test -name "*.java" -exec sed -i '' \
+  's/org\.springframework\.boot\.test\.mock\.mockito\.MockBean/org.springframework.boot.test.mock.mockito.MockitoBean/g' {} +
+
+# 替换注解使用
+find src/test -name "*.java" -exec sed -i '' \
+  's/@MockBean/@MockitoBean/g' {} +
+```
+
+3. **验证编译**:
+```bash
+# 重新编译测试代码
+gradle clean test
+```
+
+### 6.4 测试覆盖率要求
 - **单元测试覆盖率**: ≥ 80%
 - **集成测试覆盖率**: ≥ 70%
 - **API接口覆盖率**: 100%
 
-### 6.4 测试命名规范
+### 6.5 测试命名规范
 - 测试类命名: `*Test.java`
 - 测试方法命名: `should_*_when_*` 或 `given_*_when_*_then_*`
 

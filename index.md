@@ -117,6 +117,7 @@
 - 第3章: Gradle编译检查约束 - 强制性VO类型规范
 - 第4.4章: Result和PageResult使用规范 - 禁止嵌套使用
 - 第4.5章: 枚举类(Enum)使用规范
+- 第6.3章: Mock注解使用规范 - 禁止使用过时的@MockBean
 
 ---
 
@@ -261,6 +262,8 @@
 | 调试问题 | [debug.md#调试流程](./debug.md) |
 | 添加调试日志 | [debug.md#日志添加规范](./debug.md) |
 | 分析错误原因 | [debug.md#调试案例](./debug.md) |
+| 编写测试用例 | [java-coding-standards.md#6-测试规范](./java-coding-standards.md) |
+| Mock测试依赖 | [java-coding-standards.md#63-mock注解使用规范](./java-coding-standards.md) |
 
 ---
 
@@ -286,6 +289,10 @@
   - **枚举类**: 以`Enum`结尾（如`PaymentStatusEnum`）
   - **VO类**: 以`VO`结尾（如`PaymentVO`）
   - **Service实现**: 以`ServiceImpl`结尾（如`PaymentServiceImpl`）
+- **测试Mock注解**:
+  - **禁止**: 使用过时的 `@MockBean` 和 `@SpyBean`
+  - **必须**: 使用 `@MockitoBean` 和 `@MockitoSpyBean`
+  - **详细**: [java-coding-standards.md#63-mock注解使用规范](./java-coding-standards.md)
 
 ### 数据库规范
 - **必备字段**: 每张表必须包含 `id`、`create_time`、`update_time`、`is_deleted`
