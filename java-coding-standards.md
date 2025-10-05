@@ -13,6 +13,7 @@
 2. [项目构建配置](#项目构建配置)
 3. [Gradle编译检查约束](#gradle编译检查约束)
 4. [代码风格规范](#代码风格规范)
+   - 4.6 [日志使用规范](#46-日志使用规范) - 禁止使用System.out.println ⭐
 5. [依赖管理规范](#依赖管理规范)
 6. [测试规范](#测试规范)
 
@@ -633,6 +634,178 @@ if (status.getCode().equals("PAID")) { ... }
 PaymentStatusEnum status = PaymentStatusEnum.fromCode(statusStr);
 ```
 
+### 4.6 日志使用规范
+
+#### 4.6.1 禁止使用System.out.println
+
+**强制规范**: **禁止在生产代码中使用 `System.out.println()` 和 `System.err.println()`**
+
+**原因**:
+1. **性能问题**: System.out是同步的,在高并发场景下会成为性能瓶颈
+2. **无法控制级别**: 无法根据环境动态调整日志输出级别
+3. **难以追踪**: 无法记录调用位置、线程信息、时间戳等上下文
+4. **无法持久化**: 标准输出难以统一收集和归档
+5. **生产问题**: 在生产环境中难以定位问题
+
+#### 4.6.2 使用SLF4J + Logback
+
+**推荐做法**: 使用 `@Slf4j` 注解配合日志框架
+
+```java
+// ❌ 错误: 使用System.out.println
+public class PaymentService {
+    public void processPayment(Long orderId) {
+        System.out.println("开始处理订单支付: " + orderId);
+        // 业务逻辑...
+        System.out.println("订单支付处理完成: " + orderId);
+    }
+}
+
+// ❌ 错误: 使用System.err.println
+public class PaymentService {
+    public void processPayment(Long orderId) {
+        try {
+            // 业务逻辑...
+        } catch (Exception e) {
+            System.err.println("支付处理失败: " + e.getMessage());
+        }
+    }
+}
+```
+
+```java
+// ✅ 正确: 使用@Slf4j日志
+@Slf4j
+@Service
+public class PaymentService {
+
+    public void processPayment(Long orderId) {
+        log.info("开始处理订单支付, orderId: {}", orderId);
+
+        try {
+            // 业务逻辑...
+            log.info("订单支付处理完成, orderId: {}", orderId);
+        } catch (Exception e) {
+            log.error("支付处理失败, orderId: {}", orderId, e);
+        }
+    }
+}
+```
+
+#### 4.6.3 日志级别规范
+
+根据不同场景选择合适的日志级别:
+
+```java
+@Slf4j
+public class PaymentService {
+
+    public void processPayment(Long orderId) {
+        // TRACE: 追踪级别,最详细的信息(一般不用)
+        log.trace("进入processPayment方法, orderId: {}", orderId);
+
+        // DEBUG: 调试信息,开发阶段使用
+        log.debug("查询订单信息, orderId: {}", orderId);
+
+        // INFO: 一般信息,记录重要的业务流程
+        log.info("开始处理订单支付, orderId: {}", orderId);
+
+        // WARN: 警告信息,潜在问题但不影响运行
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            log.warn("订单金额异常, orderId: {}, amount: {}", orderId, amount);
+        }
+
+        // ERROR: 错误信息,业务异常或系统错误
+        try {
+            // 业务逻辑...
+        } catch (PaymentException e) {
+            log.error("支付处理失败, orderId: {}, errorCode: {}",
+                     orderId, e.getErrorCode(), e);
+            throw e;
+        }
+    }
+}
+```
+
+#### 4.6.4 日志输出最佳实践
+
+**1. 使用占位符,避免字符串拼接**:
+```java
+// ❌ 错误: 字符串拼接
+log.info("订单支付: " + orderId + ", 金额: " + amount);
+
+// ✅ 正确: 使用占位符
+log.info("订单支付, orderId: {}, amount: {}", orderId, amount);
+```
+
+**2. 记录异常时包含堆栈信息**:
+```java
+// ❌ 错误: 只记录异常消息
+catch (Exception e) {
+    log.error("支付失败: " + e.getMessage());
+}
+
+// ✅ 正确: 记录完整堆栈
+catch (Exception e) {
+    log.error("支付失败, orderId: {}", orderId, e);
+}
+```
+
+**3. 避免敏感信息泄露**:
+```java
+// ❌ 错误: 记录敏感信息
+log.info("用户登录, password: {}", password);
+log.info("支付请求, cardNumber: {}", cardNumber);
+
+// ✅ 正确: 脱敏处理
+log.info("用户登录, username: {}", username);
+log.info("支付请求, cardNumber: {}****", cardNumber.substring(0, 4));
+```
+
+**4. 条件日志输出**:
+```java
+// 对于复杂的日志内容,先判断级别再输出
+if (log.isDebugEnabled()) {
+    log.debug("复杂对象详情: {}", expensiveToString(obj));
+}
+```
+
+#### 4.6.5 唯一允许的例外场景
+
+以下场景可以临时使用 `System.out.println`,但**不允许提交到生产代码**:
+
+1. **本地开发调试**: 临时调试代码,调试完成后必须删除
+2. **Main方法**: 应用启动入口的简单信息输出
+3. **命令行工具**: 专门的CLI工具需要向控制台输出结果
+
+```java
+// ✅ 允许: Main方法中的启动信息
+public class Application {
+    public static void main(String[] args) {
+        System.out.println("应用启动中...");
+        SpringApplication.run(Application.class, args);
+    }
+}
+
+// ✅ 允许: CLI工具的输出
+public class DataExportTool {
+    public static void main(String[] args) {
+        System.out.println("导出数据到: " + outputFile);
+        // 导出逻辑...
+    }
+}
+```
+
+#### 4.6.6 代码检查
+
+建议在代码审查时检查:
+- [ ] 没有使用 `System.out.println`
+- [ ] 没有使用 `System.err.println`
+- [ ] 所有业务类使用 `@Slf4j` 注解
+- [ ] 日志级别选择合适
+- [ ] 异常日志包含堆栈信息
+- [ ] 没有记录敏感信息
+
 ---
 
 ## 5. 依赖管理规范
@@ -804,5 +977,5 @@ gradle :sbt-plus-payment:sbt-plus-payment-core:compileJava
 
 ---
 
-**最后更新**: 2025-10-01  
+**最后更新**: 2025-10-05
 **维护者**: kk

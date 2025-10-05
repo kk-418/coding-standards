@@ -11,6 +11,7 @@
 2. [依赖配置](#依赖配置)
 3. [实体类规范](#实体类规范)
 4. [Mapper接口规范](#mapper接口规范)
+   - 4.4 [更新操作规范](#44-更新操作规范) ⭐
 5. [枚举映射](#枚举映射)
 6. [查询构造器(QueryWrapper)](#查询构造器querywrapper)
 7. [分页查询](#分页查询)
@@ -237,6 +238,160 @@ public interface PaymentMapper extends BaseMapper<Payment> {
                                      @Param("endTime") LocalDateTime endTime);
 }
 ```
+
+### 4.4 更新操作规范 ⭐
+
+**核心原则**: 更新指定字段时,优先使用`UpdateChain`,而不是使用`updateById`更新全部字段。
+
+#### 4.4.1 为什么使用UpdateChain
+
+使用`updateById`更新全部字段存在以下问题:
+1. **性能浪费**: 即使只需要更新1-2个字段,也会更新所有字段
+2. **并发风险**: 可能覆盖其他线程的更新(除非使用乐观锁)
+3. **SQL冗余**: 生成的SQL包含大量不必要的SET子句
+4. **语义不清**: 代码意图不明确,不清楚到底要更新哪些字段
+
+#### 4.4.2 正确示例: 使用UpdateChain
+
+```java
+@Service
+@RequiredArgsConstructor
+public class PaymentService {
+
+    private final PaymentMapper paymentMapper;
+
+    /**
+     * 更新支付状态(推荐方式)
+     */
+    public void updatePaymentStatus(Long paymentId, PaymentStatusEnum newStatus) {
+        UpdateChain.of(Payment.class)
+                .set(Payment::getStatus, newStatus)
+                .where(Payment::getId).eq(paymentId)
+                .update();
+    }
+
+    /**
+     * 更新多个字段
+     */
+    public void updatePaymentInfo(Long paymentId, BigDecimal amount, String remark) {
+        UpdateChain.of(Payment.class)
+                .set(Payment::getAmount, amount)
+                .set(Payment::getRemark, remark)
+                .where(Payment::getId).eq(paymentId)
+                .update();
+    }
+
+    /**
+     * 带条件的更新
+     */
+    public void updateStatusByOrderId(Long orderId, PaymentStatusEnum newStatus) {
+        UpdateChain.of(Payment.class)
+                .set(Payment::getStatus, newStatus)
+                .where(Payment::getOrderId).eq(orderId)
+                .and(Payment::getStatus).eq(PaymentStatusEnum.WAITING_PAYMENT)
+                .update();
+    }
+}
+```
+
+生成的SQL:
+```sql
+-- 只更新需要的字段
+UPDATE payment
+SET status = 'PAID', update_time = now()
+WHERE id = 123
+```
+
+#### 4.4.3 错误示例: 滥用updateById
+
+```java
+// ❌ 错误: 只需要更新status,却查询并更新了全部字段
+public void updatePaymentStatus(Long paymentId, PaymentStatusEnum newStatus) {
+    Payment payment = paymentMapper.selectOneById(paymentId);
+    payment.setStatus(newStatus);
+    paymentMapper.updateById(payment);
+}
+```
+
+生成的SQL:
+```sql
+-- 更新了所有字段,即使大部分字段值没有变化
+UPDATE payment
+SET order_id = 456,
+    amount = 100.00,
+    status = 'PAID',          -- 只有这个字段需要更新
+    remark = 'xxx',
+    create_time = '2024-01-01 10:00:00',
+    update_time = now(),
+    version = 2
+WHERE id = 123 AND version = 1
+```
+
+#### 4.4.4 updateById的适用场景
+
+`updateById` 只在以下场景使用:
+1. **表单编辑**: 用户通过表单修改了实体的大部分字段
+2. **数据同步**: 需要完整替换某条记录的所有字段
+3. **乐观锁更新**: 需要基于version字段的并发控制
+
+```java
+// ✅ 正确: 用户编辑表单,修改了多个字段
+@Transactional(rollbackFor = Exception.class)
+public void updatePaymentByForm(UpdatePaymentRequest request) {
+    Payment payment = paymentMapper.selectOneById(request.getId());
+
+    // 更新多个字段
+    payment.setAmount(request.getAmount());
+    payment.setStatus(request.getStatus());
+    payment.setRemark(request.getRemark());
+    payment.setPaymentMethod(request.getPaymentMethod());
+    payment.setPaymentTime(request.getPaymentTime());
+
+    // 使用updateById更新全部字段,并通过version实现乐观锁
+    int rows = paymentMapper.updateById(payment);
+    if (rows == 0) {
+        throw new BusinessException("更新失败,数据已被修改");
+    }
+}
+```
+
+#### 4.4.5 UpdateChain高级用法
+
+```java
+// 条件更新 + 自增/自减
+UpdateChain.of(Payment.class)
+        .setRaw(Payment::getRetryCount, "retry_count + 1")  // 重试次数+1
+        .set(Payment::getStatus, PaymentStatusEnum.RETRYING)
+        .where(Payment::getId).eq(paymentId)
+        .update();
+
+// 动态字段更新
+UpdateChain<Payment> updateChain = UpdateChain.of(Payment.class)
+        .where(Payment::getId).eq(paymentId);
+
+if (amount != null) {
+    updateChain.set(Payment::getAmount, amount);
+}
+if (remark != null) {
+    updateChain.set(Payment::getRemark, remark);
+}
+
+updateChain.update();
+```
+
+#### 4.4.6 性能对比
+
+| 操作 | SQL字段数 | 数据库负载 | 网络传输 | 推荐度 |
+|------|-----------|-----------|---------|--------|
+| UpdateChain(1个字段) | 1-2个 | 低 | 小 | ⭐⭐⭐⭐⭐ |
+| UpdateChain(2-3个字段) | 2-4个 | 低 | 小 | ⭐⭐⭐⭐⭐ |
+| updateById(10个字段) | 10+个 | 中 | 中 | ⭐⭐ |
+| updateById(20个字段) | 20+个 | 高 | 大 | ⭐ |
+
+**规范总结**:
+- ✅ **推荐**: 使用`UpdateChain`精确更新需要修改的字段
+- ⚠️ **谨慎**: `updateById`仅用于表单编辑、数据同步等需要更新大部分字段的场景
+- ❌ **禁止**: 使用`updateById`更新单个或少量字段
 
 ---
 
@@ -778,5 +933,5 @@ public class PaymentService {
 
 ---
 
-**最后更新**: 2025-10-01
+**最后更新**: 2025-10-04
 **维护者**: kk

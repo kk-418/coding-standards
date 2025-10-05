@@ -109,7 +109,7 @@
 1. Java版本与特性
 2. 项目构建配置
 3. Gradle编译检查约束（含VO类型校验）⭐
-4. 代码风格规范（含Enum枚举类）
+4. 代码风格规范（含Enum枚举类、日志使用）
 5. 依赖管理规范
 6. 测试规范
 
@@ -117,6 +117,7 @@
 - 第3章: Gradle编译检查约束 - 强制性VO类型规范
 - 第4.4章: Result和PageResult使用规范 - 禁止嵌套使用
 - 第4.5章: 枚举类(Enum)使用规范
+- 第4.6章: 日志使用规范 - 禁止使用System.out.println ⭐
 - 第6章: 测试规范 - 详细内容见java-test-standards.md
 
 ---
@@ -201,7 +202,7 @@
 
 ---
 
-### [mybatis-flex-standards.md](./mybatis-flex-standards.md)
+### [mybatis-flex-standards.md](./mybatis-flex-standards.md) ⭐
 **适用范围**: MyBatis-Flex 1.11.1 + Spring Boot项目
 
 **章节目录**:
@@ -209,6 +210,7 @@
 2. 依赖配置
 3. 实体类规范
 4. Mapper接口规范
+   - 4.4 更新操作规范 ⭐
 5. 枚举映射
 6. 查询构造器(QueryWrapper)
 7. 分页查询
@@ -217,6 +219,11 @@
 10. 多数据源配置
 11. 代码生成器
 12. 最佳实践
+
+**重要规范**:
+- 更新指定字段使用UpdateChain而非updateById
+- 实体类字段自动填充配置
+- 逻辑删除和乐观锁配置
 
 ---
 
@@ -257,6 +264,7 @@
 | 使用Lombok注解 | [java-coding-standards.md#42-lombok使用规范](./java-coding-standards.md) |
 | 使用Record类 | [java-coding-standards.md#43-record类使用规范](./java-coding-standards.md) |
 | Result和PageResult使用 | [java-coding-standards.md#44-result和pageresult使用规范](./java-coding-standards.md) |
+| 日志使用(禁止System.out.println) | [java-coding-standards.md#46-日志使用规范](./java-coding-standards.md) |
 | VO类型校验失败 | [java-coding-standards.md#9-常见问题排查](./java-coding-standards.md) |
 | 编译/依赖问题 | [java-coding-standards.md#9](./java-coding-standards.md) |
 | 集合判空处理 | [common-coding.md#集合处理规范](./common-coding.md) |
@@ -274,6 +282,7 @@
 | Gradle构建配置 | [gradle-standards.md](./gradle-standards.md) |
 | Maven构建配置 | [maven-standards.md](./maven-standards.md) |
 | MyBatis-Flex使用 | [mybatis-flex-standards.md](./mybatis-flex-standards.md) |
+| 更新数据库字段 | [mybatis-flex-standards.md#44-更新操作规范](./mybatis-flex-standards.md) |
 | QueryWrapper查询 | [mybatis-flex-standards.md#6-查询构造器querywrapper](./mybatis-flex-standards.md) |
 | 前端项目初始化 | [frontend-standards.md#2-包管理器规范](./frontend-standards.md) |
 | pnpm使用 | [frontend-standards.md#21-强制使用pnpm](./frontend-standards.md) |
@@ -310,6 +319,10 @@
   - **禁止**: 使用 `Result<PageResult<T>>` 嵌套包装
   - **必须**: 分页查询直接返回 `PageResult<T>`
   - **详细**: [java-coding-standards.md#44-result和pageresult使用规范](./java-coding-standards.md)
+- **日志使用规范**:
+  - **禁止**: 在生产代码中使用 `System.out.println()` 和 `System.err.println()`
+  - **必须**: 使用 `@Slf4j` 注解配合SLF4J日志框架
+  - **详细**: [java-coding-standards.md#46-日志使用规范](./java-coding-standards.md)
 - **命名规范**:
   - **枚举类**: 以`Enum`结尾（如`PaymentStatusEnum`）
   - **VO类**: 以`VO`结尾（如`PaymentVO`）
@@ -328,6 +341,13 @@
 - **时间字段**: 使用 `DATETIME` 类型，不要使用 `TIMESTAMP`
 - **查询规范**: 禁止使用 `SELECT *`，必须明确指定字段
 
+### MyBatis-Flex规范
+- **更新操作**:
+  - **禁止**: 使用 `updateById` 更新单个或少量字段
+  - **必须**: 使用 `UpdateChain` 精确更新需要修改的字段
+  - **例外**: 表单编辑、数据同步等需要更新大部分字段时可使用 `updateById`
+  - **详细**: [mybatis-flex-standards.md#44-更新操作规范](./mybatis-flex-standards.md)
+
 ### 前端规范
 - **包管理器**: 强制使用 `pnpm`，禁止使用 `npm` 或 `yarn`
 - **类型安全**: 必须使用TypeScript，避免使用 `any` 类型
@@ -336,4 +356,4 @@
 
 ---
 
-**最后更新**: 2025-10-01
+**最后更新**: 2025-10-05
