@@ -20,6 +20,7 @@
 10. [多数据源配置](#多数据源配置)
 11. [代码生成器](#代码生成器)
 12. [最佳实践](#最佳实践)
+    - 12.1 [Service层继承规范](#121-service层继承规范) ⭐
 
 ---
 
@@ -810,15 +811,55 @@ public class CodeGenerator {
 
 ## 12. 最佳实践
 
-### 12.1 Service层使用规范
+### 12.1 Service层继承规范 ⭐
+
+**核心要求**:
+- **必须**: Service实现类必须继承 `ServiceImpl<Mapper, Entity>`
+- **必须**: Service接口必须继承 `IService<Entity>`
+- **例外**: 使用 MyBatis-Flex 代码生成器生成的 Service 会自动满足此要求
+
+#### 12.1.1 为什么要继承ServiceImpl
+
+继承 `ServiceImpl` 可以获得以下便捷方法,无需手动编写:
+
+| 方法 | 说明 | 示例 |
+|------|------|------|
+| `save(entity)` | 保存实体 | `paymentService.save(payment)` |
+| `saveBatch(entities)` | 批量保存 | `paymentService.saveBatch(paymentList)` |
+| `updateById(entity)` | 根据ID更新 | `paymentService.updateById(payment)` |
+| `removeById(id)` | 根据ID删除 | `paymentService.removeById(1L)` |
+| `removeByIds(ids)` | 批量删除 | `paymentService.removeByIds(Arrays.asList(1L, 2L))` |
+| `getById(id)` | 根据ID查询 | `paymentService.getById(1L)` |
+| `list()` | 查询所有 | `paymentService.list()` |
+| `list(queryWrapper)` | 条件查询 | `paymentService.list(queryWrapper)` |
+| `page(page, queryWrapper)` | 分页查询 | `paymentService.page(page, queryWrapper)` |
+| `count()` | 统计数量 | `paymentService.count()` |
+
+#### 12.1.2 正确示例
 
 ```java
-@Service
-@RequiredArgsConstructor
-@Slf4j
-public class PaymentServiceImpl implements PaymentService {
+/**
+ * Payment Service接口 - 必须继承IService
+ */
+public interface PaymentService extends IService<Payment> {
 
-    private final PaymentMapper paymentMapper;
+    /**
+     * 创建支付记录
+     */
+    Payment createPayment(CreatePaymentRequest request);
+
+    /**
+     * 更新支付状态
+     */
+    void updateStatus(Long id, PaymentStatusEnum newStatus);
+}
+
+/**
+ * Payment Service实现 - 必须继承ServiceImpl
+ */
+@Service
+@Slf4j
+public class PaymentServiceImpl extends ServiceImpl<PaymentMapper, Payment> implements PaymentService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -830,35 +871,103 @@ public class PaymentServiceImpl implements PaymentService {
                 .status(PaymentStatusEnum.WAITING_PAYMENT)
                 .build();
 
-        // 2. 插入数据库
-        paymentMapper.insert(payment);
+        // 2. 使用继承的save方法插入
+        save(payment);
 
         // 3. 返回结果
         return payment;
     }
 
     @Override
-    public Payment getById(Long id) {
-        Payment payment = paymentMapper.selectOneById(id);
+    @Transactional(rollbackFor = Exception.class)
+    public void updateStatus(Long id, PaymentStatusEnum newStatus) {
+        // 1. 使用继承的getById方法查询
+        Payment payment = getById(id);
         if (payment == null) {
             throw new BusinessException("支付记录不存在");
         }
-        return payment;
-    }
 
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public void updateStatus(Long id, PaymentStatusEnum newStatus) {
-        Payment payment = getById(id);
-        payment.setStatus(newStatus);
-
-        int rows = paymentMapper.updateById(payment);
-        if (rows == 0) {
-            throw new BusinessException("更新失败");
-        }
+        // 2. 使用UpdateChain精确更新
+        UpdateChain.of(Payment.class)
+                .set(Payment::getStatus, newStatus)
+                .where(Payment::getId).eq(id)
+                .update();
     }
 }
 ```
+
+#### 12.1.3 错误示例
+
+```java
+// ❌ 错误: Service接口没有继承IService
+public interface PaymentService {
+    Payment createPayment(CreatePaymentRequest request);
+}
+
+// ❌ 错误: Service实现类没有继承ServiceImpl
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class PaymentServiceImpl implements PaymentService {
+
+    private final PaymentMapper paymentMapper;  // 需要手动注入Mapper
+
+    @Override
+    public Payment createPayment(CreatePaymentRequest request) {
+        Payment payment = Payment.builder()
+                .orderId(request.orderId())
+                .amount(request.amount())
+                .status(PaymentStatusEnum.WAITING_PAYMENT)
+                .build();
+
+        // 需要手动调用Mapper方法
+        paymentMapper.insert(payment);
+        return payment;
+    }
+}
+```
+
+#### 12.1.4 ServiceImpl的优势
+
+1. **减少样板代码**: 无需为每个Service编写相同的CRUD方法
+2. **统一接口**: 所有Service都有一致的基础方法签名
+3. **便于测试**: 继承的方法已经过框架测试,可靠性高
+4. **链式调用**: 支持链式操作,代码更简洁
+5. **事务支持**: 继承的方法自动支持Spring事务管理
+
+#### 12.1.5 使用代码生成器
+
+推荐使用 MyBatis-Flex 代码生成器自动生成符合规范的 Service:
+
+```java
+public class CodeGenerator {
+    public static void main(String[] args) {
+        // ... 数据源配置 ...
+
+        // 策略配置
+        StrategyConfig strategyConfig = new StrategyConfig();
+        strategyConfig.setGenerateService(true);        // 生成IService接口
+        strategyConfig.setGenerateServiceImpl(true);    // 生成ServiceImpl实现
+
+        // 生成器
+        Generator generator = new Generator(dataSource, globalConfig, strategyConfig);
+        generator.generate();
+    }
+}
+```
+
+生成的代码会自动:
+- Service接口继承 `IService<Entity>`
+- Service实现继承 `ServiceImpl<Mapper, Entity>`
+- 包含必要的注解和注释
+
+**规范总结**:
+- ✅ **必须**: Service实现类继承 `ServiceImpl<Mapper, Entity>`
+- ✅ **必须**: Service接口继承 `IService<Entity>`
+- ✅ **推荐**: 使用代码生成器自动生成符合规范的Service
+- ❌ **禁止**: Service不继承ServiceImpl,手动注入Mapper并调用Mapper方法
+
+---
 
 ### 12.2 性能优化建议
 
@@ -933,5 +1042,5 @@ public class PaymentService {
 
 ---
 
-**最后更新**: 2025-10-04
+**最后更新**: 2025-10-06
 **维护者**: kk

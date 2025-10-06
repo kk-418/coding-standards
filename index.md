@@ -282,6 +282,7 @@
 | Gradle构建配置 | [gradle-standards.md](./gradle-standards.md) |
 | Maven构建配置 | [maven-standards.md](./maven-standards.md) |
 | MyBatis-Flex使用 | [mybatis-flex-standards.md](./mybatis-flex-standards.md) |
+| 创建Service类 | [mybatis-flex-standards.md#121-service层继承规范](./mybatis-flex-standards.md) |
 | 更新数据库字段 | [mybatis-flex-standards.md#44-更新操作规范](./mybatis-flex-standards.md) |
 | QueryWrapper查询 | [mybatis-flex-standards.md#6-查询构造器querywrapper](./mybatis-flex-standards.md) |
 | 前端项目初始化 | [frontend-standards.md#2-包管理器规范](./frontend-standards.md) |
@@ -342,6 +343,11 @@
 - **查询规范**: 禁止使用 `SELECT *`，必须明确指定字段
 
 ### MyBatis-Flex规范
+- **Service继承规范**:
+  - **必须**: Service实现类必须继承 `ServiceImpl<Mapper, Entity>`
+  - **必须**: Service接口必须继承 `IService<Entity>`
+  - **推荐**: 使用代码生成器自动生成符合规范的Service
+  - **详细**: [mybatis-flex-standards.md#121-service层继承规范](./mybatis-flex-standards.md)
 - **更新操作**:
   - **禁止**: 使用 `updateById` 更新单个或少量字段
   - **必须**: 使用 `UpdateChain` 精确更新需要修改的字段
@@ -356,4 +362,4 @@
 
 ---
 
-**最后更新**: 2025-10-05
+**最后更新**: 2025-10-06
