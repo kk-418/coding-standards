@@ -31,6 +31,7 @@
         "中文"
       ],
       "category": "development",
+      "strict": false,
       "skills": [
         "./skills/work-guidelines"
       ]
@@ -58,6 +59,7 @@
         "中文"
       ],
       "category": "backend-development",
+      "strict": false,
       "commands": [
         "./commands/java.md",
         "./commands/check-vo.md",
@@ -89,6 +91,7 @@
         "中文"
       ],
       "category": "build-tools",
+      "strict": false,
       "skills": [
         "./skills/build-tools"
       ]
@@ -115,6 +118,7 @@
         "中文"
       ],
       "category": "database-design",
+      "strict": false,
       "commands": [
         "./commands/check-mybatis.md"
       ],
@@ -145,6 +149,7 @@
         "中文"
       ],
       "category": "frontend-development",
+      "strict": false,
       "commands": [
         "./commands/frontend.md"
       ],
@@ -174,6 +179,7 @@
         "中文"
       ],
       "category": "code-documentation",
+      "strict": false,
       "commands": [
         "./commands/check-naming.md"
       ],
