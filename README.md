@@ -35,14 +35,7 @@
 
 ### 安装插件
 
-**推荐方式(通过 Git 克隆):**
-
-```bash
-# 克隆到 Claude Code 插件目录
-git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
-```
-
-**替代方式(通过插件市场):**
+**推荐方式(通过 Claude Code 市场):**
 
 ```bash
 # 添加插件市场
@@ -50,6 +43,13 @@ git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/codin
 
 # 安装插件套件
 /plugin install coding-standards
+```
+
+**替代方式(通过 Git 克隆):**
+
+```bash
+# 克隆到 Claude Code 插件目录
+git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
 ```
 
 ### 验证安装

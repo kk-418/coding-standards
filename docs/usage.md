@@ -13,17 +13,7 @@
 
 ### 安装步骤
 
-#### 方式 1: 通过 Git 克隆(推荐)
-
-```bash
-# 克隆到 Claude Code 插件目录
-git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
-
-# 验证安装
-ls ~/.claude/plugins/coding-standards
-```
-
-#### 方式 2: 通过插件市场
+#### 方式 1: 通过插件市场(推荐)
 
 ```bash
 # 添加插件市场
@@ -31,6 +21,16 @@ ls ~/.claude/plugins/coding-standards
 
 # 安装插件套件
 /plugin install coding-standards
+```
+
+#### 方式 2: 通过 Git 克隆
+
+```bash
+# 克隆到 Claude Code 插件目录
+git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
+
+# 验证安装
+ls ~/.claude/plugins/coding-standards
 ```
 
 ### 验证安装

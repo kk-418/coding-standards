@@ -337,13 +337,21 @@
 
 ### 安装所有插件
 
+**推荐方式(通过插件市场):**
+
+```bash
+# 添加插件市场
+/plugin marketplace add kk-418/coding-standards
+
+# 安装插件套件
+/plugin install coding-standards
+```
+
+**替代方式(通过 Git 克隆):**
+
 ```bash
 # 克隆仓库
 git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
-
-# 或通过插件市场安装(推荐)
-/plugin marketplace add kk-418/coding-standards
-/plugin install coding-standards
 ```
 
 ### 按需安装插件
