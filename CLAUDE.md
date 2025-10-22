@@ -1,25 +1,33 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code when working with the Coding Standards Plugin.
+This file provides guidance to Claude Code when working with the Coding Standards Suite.
 
 ---
 
-## 插件概述
+## 套件概述
 
-这是一个 Claude Code 插件,提供中文编码规范和最佳实践。
+这是一个采用 **Marketplace 模式**的 Claude Code 编码规范套件,提供中文编码规范和最佳实践。
 
-**插件名称**: coding-standards
-**版本**: 1.0.0
+**套件名称**: coding-standards
+**版本**: 2.0.0
 **作者**: kk
+**架构**: Marketplace (6 个独立插件)
 **类型**: Skills + Slash Commands
 
 ---
 
-## 插件架构
+## 架构说明
 
-### Skills 组织(6个)
+### Marketplace 模式
 
-插件包含 6 个按技术栈组织的 Skills:
+参考 [wshobson/agents](https://github.com/wshobson/agents) 的架构设计:
+
+- **单一仓库**: 所有插件在同一仓库,统一版本管理
+- **插件隔离**: 6 个插件独立组织,按技术栈划分
+- **统一配置**: 通过 `.claude-plugin/marketplace.json` 管理所有插件
+- **按需加载**: Claude Code 根据上下文自动加载相关插件
+
+### 插件列表(6个)
 
 1. **work-guidelines**: 工作规范、价值观、调试方法论
 2. **java-standards**: Java/Spring Boot 编码规范
@@ -28,9 +36,9 @@ This file provides guidance to Claude Code when working with the Coding Standard
 5. **frontend**: React/Vue + TypeScript 规范
 6. **common**: 通用编码规范(跨语言)
 
-每个 Skill 包含:
-- `SKILL.md` - 带 YAML frontmatter 的主文件
-- 相关规范文档(*.md)
+每个插件包含:
+- **skills/** 目录:包含 1 个 Skill 和相关规范文档
+- **commands/** 目录:包含 Slash Commands(可选)
 
 ### Slash Commands(6个)
 
@@ -49,45 +57,64 @@ This file provides guidance to Claude Code when working with the Coding Standard
 ## 目录结构
 
 ```
-coding-standards/
+coding-standards/                    # 根目录
 ├── .claude-plugin/
-│   └── plugin.json              # 插件配置
-├── skills/                       # Skills 目录
-│   ├── work-guidelines/         # 工作规范
-│   │   ├── SKILL.md
-│   │   ├── guidelines.md
-│   │   ├── values.md
-│   │   └── debug.md
-│   ├── java-standards/          # Java 规范
-│   │   ├── SKILL.md
-│   │   ├── java-coding-standards.md
-│   │   ├── java21-standards.md
-│   │   └── java-test-standards.md
-│   ├── build-tools/             # 构建工具
-│   │   ├── SKILL.md
-│   │   ├── gradle-standards.md
-│   │   └── maven-standards.md
-│   ├── database/                # 数据库
-│   │   ├── SKILL.md
-│   │   ├── database-standards.md
-│   │   └── mybatis-flex-standards.md
-│   ├── frontend/                # 前端
-│   │   ├── SKILL.md
-│   │   └── frontend-standards.md
-│   └── common/                  # 通用规范
-│       ├── SKILL.md
-│       └── common-coding.md
-├── commands/                    # Slash Commands
-│   ├── coding-standards:java.md
-│   ├── coding-standards:frontend.md
-│   ├── coding-standards:check-vo.md
-│   ├── coding-standards:check-naming.md
-│   ├── coding-standards:check-logging.md
-│   └── coding-standards:check-mybatis.md
-├── README.md                    # 插件使用文档
-├── CHANGELOG.md                 # 版本日志
-├── LICENSE                      # MIT 许可证
-└── CLAUDE.md                    # 本文件
+│   └── marketplace.json            # Marketplace 配置
+├── plugins/                         # 插件目录
+│   ├── work-guidelines/            # 插件 1
+│   │   └── skills/
+│   │       └── work-guidelines/
+│   │           ├── SKILL.md
+│   │           ├── guidelines.md
+│   │           ├── values.md
+│   │           └── debug.md
+│   ├── java-standards/             # 插件 2
+│   │   ├── skills/
+│   │   │   └── java-standards/
+│   │   │       ├── SKILL.md
+│   │   │       ├── java-coding-standards.md
+│   │   │       ├── java21-standards.md
+│   │   │       └── java-test-standards.md
+│   │   └── commands/
+│   │       ├── java.md
+│   │       ├── check-vo.md
+│   │       └── check-logging.md
+│   ├── build-tools/                # 插件 3
+│   │   └── skills/
+│   │       └── build-tools/
+│   │           ├── SKILL.md
+│   │           ├── gradle-standards.md
+│   │           └── maven-standards.md
+│   ├── database/                   # 插件 4
+│   │   ├── skills/
+│   │   │   └── database/
+│   │   │       ├── SKILL.md
+│   │   │       ├── database-standards.md
+│   │   │       └── mybatis-flex-standards.md
+│   │   └── commands/
+│   │       └── check-mybatis.md
+│   ├── frontend/                   # 插件 5
+│   │   ├── skills/
+│   │   │   └── frontend/
+│   │   │       ├── SKILL.md
+│   │   │       └── frontend-standards.md
+│   │   └── commands/
+│   │       └── frontend.md
+│   └── common/                     # 插件 6
+│       ├── skills/
+│       │   └── common/
+│       │       ├── SKILL.md
+│       │       └── common-coding.md
+│       └── commands/
+│           └── check-naming.md
+├── docs/                            # 文档目录
+│   ├── plugins.md                   # 插件详细说明
+│   ├── skills.md                    # Skills 总览
+│   └── usage.md                     # 使用指南
+├── README.md                        # 套件总览
+├── CHANGELOG.md                     # 版本日志
+├── LICENSE                          # MIT 许可证
+└── CLAUDE.md                        # 本文件(维护指南)
 ```
 
 ---
@@ -165,30 +192,74 @@ Claude Code 会根据用户请求的上下文自动加载相关 Skills:
 
 ---
 
-## 插件维护
+## 套件维护
 
-### 添加新规范
+### 添加新规范到现有插件
 
-1. 确定规范所属 Skill
-2. 编辑对应的 `*.md` 文档
+1. 确定规范所属插件(如 java-standards)
+2. 编辑 `plugins/<plugin>/skills/<plugin>/*.md` 文档
 3. 更新 `SKILL.md` (如需要)
 4. 更新 `CHANGELOG.md`
 5. 测试规范触发
 
-### 添加新 Skill
+示例:
+```bash
+# 添加新的 Java 规范
+cd plugins/java-standards/skills/java-standards
+vim java-coding-standards.md  # 编辑规范
+```
 
-1. 在 `skills/` 创建新目录
-2. 创建 `SKILL.md` (包含 name 和 description)
-3. 添加规范文档
-4. 更新 `README.md`
+### 添加新插件
+
+1. 在 `plugins/` 创建新插件目录
+2. 创建插件结构:
+   ```
+   plugins/new-plugin/
+   ├── skills/
+   │   └── new-plugin/
+   │       └── SKILL.md
+   └── commands/ (可选)
+   ```
+3. 更新 `.claude-plugin/marketplace.json`,添加插件配置
+4. 更新 `README.md` 和 `docs/plugins.md`
 5. 测试自动触发
 
-### 添加新 Command
+### 添加新 Slash Command
 
-1. 在 `commands/` 创建 `coding-standards:xxx.md`
-2. 编写命令说明和使用指南
-3. 更新 `README.md`
-4. 测试命令执行
+1. 确定命令所属插件
+2. 在 `plugins/<plugin>/commands/` 创建 `<command-name>.md`
+3. 更新 `.claude-plugin/marketplace.json` 中的 commands 数组
+4. 更新文档
+5. 测试命令执行
+
+示例:
+```bash
+# 添加新的检查命令
+cd plugins/java-standards/commands
+touch check-entity.md  # 创建命令文件
+
+# 然后在 marketplace.json 中添加:
+# "commands": [..., "./commands/check-entity.md"]
+```
+
+### 更新 marketplace.json
+
+每次添加/修改插件时,需要更新 `.claude-plugin/marketplace.json`:
+
+```json
+{
+  "plugins": [
+    {
+      "name": "new-plugin",
+      "source": "./plugins/new-plugin",
+      "description": "新插件描述",
+      "version": "1.0.0",
+      "skills": ["./skills/new-plugin"],
+      "commands": ["./commands/some-command.md"]
+    }
+  ]
+}
+```
 
 ---
 
@@ -197,20 +268,21 @@ Claude Code 会根据用户请求的上下文自动加载相关 Skills:
 ### 版本号规则
 
 遵循语义化版本 (Semantic Versioning):
-- **MAJOR**: 不兼容的 API 变更
+- **MAJOR**: 不兼容的 API 变更或架构重构
 - **MINOR**: 向后兼容的功能新增
 - **PATCH**: 向后兼容的问题修复
 
-当前版本: `1.0.0`
+当前版本: `2.0.0` (Marketplace 架构)
 
 ### 更新检查清单
 
-- [ ] 更新 `plugin.json` version 字段
+- [ ] 更新 `.claude-plugin/marketplace.json` 的 metadata.version
+- [ ] 更新各插件的 version 字段(如有变更)
+- [ ] 更新 `README.md` 版本号
 - [ ] 更新 `CHANGELOG.md` 添加版本条目
-- [ ] 更新 `README.md` version badge (如有)
 - [ ] 测试所有 Skills 和 Commands
 - [ ] 提交 git commit
-- [ ] 打 git tag
+- [ ] 打 git tag: `git tag v2.0.0`
 
 ---
 

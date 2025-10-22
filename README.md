@@ -1,21 +1,33 @@
-# 编码规范插件 (Coding Standards Plugin)
+# 编码规范套件 (Coding Standards Suite)
 
 > **作者**: kk
-> **版本**: 1.0.0
+> **版本**: 2.0.0
 > **许可**: MIT
+> **架构**: Marketplace 模式
 
 ---
 
 ## 📖 简介
 
-这是一个为 Claude Code 设计的中文编码规范插件,提供 Java/Spring Boot、前端、数据库等技术栈的编码标准和最佳实践。
+这是一个为 Claude Code 设计的**中文编码规范套件**,采用 **Marketplace 模式**组织 **6 个专注插件**,提供 Java/Spring Boot、前端、数据库等技术栈的编码标准和最佳实践。
 
-**特点:**
+**架构特点:**
+- 🏪 **Marketplace 模式**: 单一仓库,6 个独立插件,统一管理
 - 🎯 **自动触发**: Claude 根据上下文自动加载相关规范
 - ⚡ **快捷命令**: 通过 slash commands 快速访问规范
-- 🔍 **代码检查**: 内置 4 个检查命令验证代码质量
+- 🔍 **代码检查**: 内置 6 个检查命令验证代码质量
 - 📚 **模块化**: 按技术栈清晰组织,易于维护
 - 🇨🇳 **中文友好**: 全中文文档,适合中文开发团队
+
+**插件列表:**
+| 插件 | 描述 | Skills | Commands |
+|------|------|--------|----------|
+| work-guidelines | 工作规范与调试方法论 | 1 | 0 |
+| java-standards | Java/Spring Boot 编码规范 | 1 | 3 |
+| build-tools | Gradle/Maven 构建规范 | 1 | 0 |
+| database | MySQL + MyBatis-Flex 规范 | 1 | 1 |
+| frontend | React/Vue + TypeScript 规范 | 1 | 1 |
+| common | 通用编码规范 | 1 | 1 |
 
 ---
 
@@ -23,21 +35,21 @@
 
 ### 安装插件
 
-**推荐方式(通过 Claude Code 市场):**
+**推荐方式(通过 Git 克隆):**
 
 ```bash
-# 1. 添加插件市场
-/plugin marketplace add kk-418/coding-standards
-
-# 2. 安装插件
-/plugin install coding-standards
+# 克隆到 Claude Code 插件目录
+git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
 ```
 
-**替代方式(本地安装):**
+**替代方式(通过插件市场):**
 
 ```bash
-# 克隆到本地插件目录
-git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
+# 添加插件市场
+/plugin marketplace add kk-418/coding-standards
+
+# 安装插件套件
+/plugin install coding-standards
 ```
 
 ### 验证安装
@@ -254,27 +266,41 @@ Claude: 开始检查 VO 类型约束...
 ## 📁 项目结构
 
 ```
-coding-standards/
+coding-standards/                    # 根目录
 ├── .claude-plugin/
-│   └── plugin.json              # 插件配置
-├── skills/                       # Skills 目录
-│   ├── work-guidelines/         # 工作规范 Skill
-│   ├── java-standards/          # Java 规范 Skill
-│   ├── build-tools/             # 构建工具 Skill
-│   ├── database/                # 数据库 Skill
-│   ├── frontend/                # 前端 Skill
-│   └── common/                  # 通用规范 Skill
-├── commands/                    # Slash Commands
-│   ├── coding-standards:java.md
-│   ├── coding-standards:frontend.md
-│   ├── coding-standards:check-vo.md
-│   ├── coding-standards:check-naming.md
-│   ├── coding-standards:check-logging.md
-│   └── coding-standards:check-mybatis.md
-├── README.md                    # 本文件
-├── CHANGELOG.md                 # 版本日志
-├── LICENSE                      # MIT 许可证
-└── CLAUDE.md                    # 插件开发文档
+│   ├── marketplace.json            # Marketplace 配置(新)
+│   └── plugin.json                 # 旧配置(待删除)
+├── plugins/                         # 插件目录(新)
+│   ├── work-guidelines/            # 工作规范插件
+│   │   └── skills/
+│   │       └── work-guidelines/
+│   ├── java-standards/             # Java 规范插件
+│   │   ├── skills/
+│   │   │   └── java-standards/
+│   │   └── commands/
+│   ├── build-tools/                # 构建工具插件
+│   │   └── skills/
+│   │       └── build-tools/
+│   ├── database/                   # 数据库规范插件
+│   │   ├── skills/
+│   │   │   └── database/
+│   │   └── commands/
+│   ├── frontend/                   # 前端规范插件
+│   │   ├── skills/
+│   │   │   └── frontend/
+│   │   └── commands/
+│   └── common/                     # 通用规范插件
+│       ├── skills/
+│       │   └── common/
+│       └── commands/
+├── docs/                            # 文档目录(新)
+│   ├── plugins.md                   # 插件详细说明
+│   ├── skills.md                    # Skills 总览
+│   └── usage.md                     # 使用指南
+├── README.md                        # 项目总览(本文件)
+├── CHANGELOG.md                     # 版本日志
+├── LICENSE                          # MIT 许可证
+└── CLAUDE.md                        # 维护指南
 ```
 
 ---
@@ -385,6 +411,11 @@ A: 项目级规范优先于插件规范,在项目 CLAUDE.md 中说明差异即�
 
 ## 🔗 相关资源
 
+### 套件文档
+- [插件目录](./docs/plugins.md) - 查看所有 6 个插件的详细说明
+- [Skills 总览](./docs/skills.md) - 查看所有 Skills 和触发条件
+- [使用指南](./docs/usage.md) - 完整的安装和使用教程
+
 ### 官方文档
 - [Spring Boot 官方文档](https://spring.io/projects/spring-boot)
 - [MyBatis-Flex 官方文档](https://mybatis-flex.com/)
@@ -395,8 +426,27 @@ A: 项目级规范优先于插件规范,在项目 CLAUDE.md 中说明差异即�
 - [Claude Code 文档](https://docs.claude.com/en/docs/claude-code)
 - [Skills 开发指南](https://docs.claude.com/en/docs/claude-code/skills)
 - [Plugin 开发指南](https://docs.claude.com/en/docs/claude-code/plugins-reference)
+- [Marketplace 模式参考](https://github.com/wshobson/agents)
+
+---
+
+## 🔄 版本历史
+
+### v2.0.0 (2025-10-22)
+- 🏗️ **重大重构**: 从单体插件改造为 Marketplace 模式
+- 📦 **插件拆分**: 6 个独立插件,按技术栈组织
+- 📚 **文档重构**: 新增 docs/ 目录,提供详细文档
+- 🔧 **配置优化**: 使用 marketplace.json 统一管理插件
+
+### v1.0.0 (2025-10-22)
+- 初始版本,单体插件模式
+- 6 个 Skills,6 个 Slash Commands
+- 完整的编码规范文档
+
+查看完整更新日志: [CHANGELOG.md](./CHANGELOG.md)
 
 ---
 
 **最后更新**: 2025-10-22
 **维护者**: kk
+**架构版本**: 2.0.0 (Marketplace)

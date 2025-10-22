@@ -1,31 +1,202 @@
 {
   "name": "coding-standards",
-  "description": "中文编码规范插件市场,提供企业级编码标准和最佳实践",
   "owner": {
     "name": "kk",
-    "email": "[email protected]"
+    "email": "[email protected]",
+    "url": "https://github.com/kk-418"
+  },
+  "metadata": {
+    "description": "中文编码规范套件,提供6个专注插件,涵盖工作规范、Java/Spring Boot、构建工具、数据库、前端和通用编码标准",
+    "version": "2.0.0"
   },
   "plugins": [
     {
-      "name": "coding-standards",
-      "source": "./",
-      "description": "中文编码规范和最佳实践,包含 Java/Spring Boot、前端、数据库等技术栈的编码标准",
+      "name": "work-guidelines",
+      "source": "./plugins/work-guidelines",
+      "description": "工作规范与调试方法论,包含七大代码质量原则和禁止猜测式调试的方法论",
       "version": "1.0.0",
+      "author": {
+        "name": "kk",
+        "url": "https://github.com/kk-418"
+      },
       "homepage": "https://github.com/kk-418/coding-standards",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kk-418/coding-standards.git"
+      },
+      "license": "MIT",
+      "keywords": [
+        "coding-standards",
+        "work-guidelines",
+        "debugging",
+        "code-quality",
+        "chinese",
+        "中文"
+      ],
+      "category": "development",
+      "skills": [
+        "./skills/work-guidelines"
+      ]
+    },
+    {
+      "name": "java-standards",
+      "source": "./plugins/java-standards",
+      "description": "Java/Spring Boot 编码规范,包含Java 21特性、VO类型约束、日志使用、测试规范等完整标准",
+      "version": "1.0.0",
+      "author": {
+        "name": "kk",
+        "url": "https://github.com/kk-418"
+      },
+      "homepage": "https://github.com/kk-418/coding-standards",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kk-418/coding-standards.git"
+      },
+      "license": "MIT",
       "keywords": [
         "coding-standards",
         "java",
         "spring-boot",
+        "java21",
+        "testing",
+        "lombok",
+        "chinese",
+        "中文"
+      ],
+      "category": "backend-development",
+      "commands": [
+        "./commands/java.md",
+        "./commands/check-vo.md",
+        "./commands/check-logging.md"
+      ],
+      "skills": [
+        "./skills/java-standards"
+      ]
+    },
+    {
+      "name": "build-tools",
+      "source": "./plugins/build-tools",
+      "description": "Gradle/Maven 构建工具规范,涵盖Gradle 9.0+和Maven 3.9+的配置、依赖管理和最佳实践",
+      "version": "1.0.0",
+      "author": {
+        "name": "kk",
+        "url": "https://github.com/kk-418"
+      },
+      "homepage": "https://github.com/kk-418/coding-standards",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kk-418/coding-standards.git"
+      },
+      "license": "MIT",
+      "keywords": [
+        "coding-standards",
+        "gradle",
+        "maven",
+        "build-tools",
+        "dependency-management",
+        "chinese",
+        "中文"
+      ],
+      "category": "build-tools",
+      "skills": [
+        "./skills/build-tools"
+      ]
+    },
+    {
+      "name": "database",
+      "source": "./plugins/database",
+      "description": "MySQL + MyBatis-Flex 数据库规范,包含表设计、Service层继承、UpdateChain使用等强制性规范",
+      "version": "1.0.0",
+      "author": {
+        "name": "kk",
+        "url": "https://github.com/kk-418"
+      },
+      "homepage": "https://github.com/kk-418/coding-standards",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kk-418/coding-standards.git"
+      },
+      "license": "MIT",
+      "keywords": [
+        "coding-standards",
+        "database",
+        "mysql",
+        "mybatis-flex",
+        "sql",
+        "chinese",
+        "中文"
+      ],
+      "category": "database-design",
+      "commands": [
+        "./commands/check-mybatis.md"
+      ],
+      "skills": [
+        "./skills/database"
+      ]
+    },
+    {
+      "name": "frontend",
+      "source": "./plugins/frontend",
+      "description": "React/Vue + TypeScript 前端开发规范,强制pnpm、避免any类型、使用函数组件+Hooks等标准",
+      "version": "1.0.0",
+      "author": {
+        "name": "kk",
+        "url": "https://github.com/kk-418"
+      },
+      "homepage": "https://github.com/kk-418/coding-standards",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kk-418/coding-standards.git"
+      },
+      "license": "MIT",
+      "keywords": [
+        "coding-standards",
         "frontend",
         "react",
         "vue",
         "typescript",
-        "database",
-        "mysql",
-        "mybatis-flex",
+        "pnpm",
         "chinese",
-        "中文",
-        "编码规范"
+        "中文"
+      ],
+      "category": "frontend-development",
+      "commands": [
+        "./commands/frontend.md"
+      ],
+      "skills": [
+        "./skills/frontend"
+      ]
+    },
+    {
+      "name": "common",
+      "source": "./plugins/common",
+      "description": "通用编码规范,跨语言适用的命名规范、集合处理、异常处理、并发处理等基础标准",
+      "version": "1.0.0",
+      "author": {
+        "name": "kk",
+        "url": "https://github.com/kk-418"
+      },
+      "homepage": "https://github.com/kk-418/coding-standards",
+      "repository": {
+        "type": "git",
+        "url": "https://github.com/kk-418/coding-standards.git"
+      },
+      "license": "MIT",
+      "keywords": [
+        "coding-standards",
+        "common",
+        "naming",
+        "exception-handling",
+        "collections",
+        "chinese",
+        "中文"
+      ],
+      "category": "code-documentation",
+      "commands": [
+        "./commands/check-naming.md"
+      ],
+      "skills": [
+        "./skills/common"
       ]
     }
   ]
