@@ -25,7 +25,7 @@
 
 ```bash
 # 方式1: 克隆到本地插件目录
-git clone https://github.com/yourusername/coding-standards.git ~/.claude/plugins/coding-standards
+git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
 
 # 方式2: 在 Claude Code 中安装
 /plugin install coding-standards
@@ -317,7 +317,7 @@ coding-standards/
 ### 问题反馈
 
 如果发现问题或有改进建议:
-- 提交 Issue: https://github.com/yourusername/coding-standards/issues
+- 提交 Issue: https://github.com/kk-418/coding-standards/issues
 - 联系维护者: kk
 
 ### 常见问题
