@@ -23,17 +23,38 @@
 
 ### 安装插件
 
-```bash
-# 方式1: 克隆到本地插件目录
-git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
+**推荐方式(通过 Claude Code 市场):**
 
-# 方式2: 在 Claude Code 中安装
+```bash
+# 1. 添加插件市场
+/plugin marketplace add kk-418/coding-standards
+
+# 2. 安装插件
 /plugin install coding-standards
+```
+
+**替代方式(本地安装):**
+
+```bash
+# 克隆到本地插件目录
+git clone https://github.com/kk-418/coding-standards.git ~/.claude/plugins/coding-standards
 ```
 
 ### 验证安装
 
 安装成功后,以下 Skills 将自动可用:
+
+```bash
+# 查看已安装的插件
+/plugin list
+
+# 测试 Skills (输入以下任一语句,Claude 会自动加载对应规范)
+# "帮我创建一个用户 VO 类"        → 自动加载 java-standards
+# "设计一个用户表"                 → 自动加载 database
+# "创建一个 React 登录组件"        → 自动加载 frontend
+```
+
+可用的 Skills:
 - `work-guidelines` - 工作规范与调试方法论
 - `java-standards` - Java/Spring Boot 编码规范
 - `build-tools` - Gradle/Maven 构建规范
@@ -290,6 +311,29 @@ coding-standards/
 - Java 编码规范基于《阿里巴巴 Java 开发规范(嵩山版)》整理优化
 - 前端规范参考 Airbnb JavaScript Style Guide
 - 数据库规范基于 MySQL 官方最佳实践
+
+---
+
+## 📦 发布与分发
+
+### 插件市场信息
+
+- **市场名称**: coding-standards
+- **安装命令**: `/plugin marketplace add kk-418/coding-standards`
+- **源代码**: https://github.com/kk-418/coding-standards
+- **当前版本**: 1.0.0
+
+### 版本更新
+
+用户可以通过以下命令更新插件:
+
+```bash
+# 更新插件到最新版本
+/plugin update coding-standards
+
+# 查看插件版本
+/plugin list
+```
 
 ---
 

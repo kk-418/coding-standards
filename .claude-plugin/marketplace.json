@@ -1,0 +1,32 @@
+{
+  "name": "coding-standards",
+  "description": "中文编码规范插件市场,提供企业级编码标准和最佳实践",
+  "owner": {
+    "name": "kk",
+    "email": "[email protected]"
+  },
+  "plugins": [
+    {
+      "name": "coding-standards",
+      "source": "./",
+      "description": "中文编码规范和最佳实践,包含 Java/Spring Boot、前端、数据库等技术栈的编码标准",
+      "version": "1.0.0",
+      "homepage": "https://github.com/kk-418/coding-standards",
+      "keywords": [
+        "coding-standards",
+        "java",
+        "spring-boot",
+        "frontend",
+        "react",
+        "vue",
+        "typescript",
+        "database",
+        "mysql",
+        "mybatis-flex",
+        "chinese",
+        "中文",
+        "编码规范"
+      ]
+    }
+  ]
+}
