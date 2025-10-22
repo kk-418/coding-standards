@@ -1,0 +1,25 @@
+{
+  "name": "coding-standards",
+  "version": "1.0.0",
+  "description": "中文编码规范插件,提供Java/Spring Boot、前端、数据库等技术栈的编码标准和最佳实践",
+  "author": {
+    "name": "kk"
+  },
+  "homepage": "https://github.com/cikenerd/coding-standards",
+  "license": "MIT",
+  "keywords": [
+    "coding-standards",
+    "java",
+    "spring-boot",
+    "frontend",
+    "react",
+    "vue",
+    "typescript",
+    "database",
+    "mysql",
+    "mybatis-flex",
+    "chinese",
+    "中文",
+    "编码规范"
+  ]
+}
